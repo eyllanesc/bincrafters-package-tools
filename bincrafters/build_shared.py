@@ -42,12 +42,22 @@ def inspect_value_from_recipe(attribute, recipe_path):
 
 def get_name_from_recipe(recipe=None):
     name = inspect_value_from_recipe(attribute="name", recipe_path=get_recipe_path())
-    return name or get_value_from_recipe(r'''name\s*=\s*["'](\S*)["']''', recipe=recipe).groups()[0]
+    if name:
+        return name
+    match = get_value_from_recipe(r'''name\s*=\s*["'](\S*)["']''', recipe=recipe)
+    if match is not None:
+        return match.groups()[0]
+    return ""
 
 
 def get_version_from_recipe(recipe=None):
     version = inspect_value_from_recipe(attribute="version", recipe_path=get_recipe_path())
-    return version or get_value_from_recipe(r'''version\s*=\s*["'](\S*)["']''', recipe=recipe).groups()[0]
+    if version:
+        return version
+    match = get_value_from_recipe(r'''version\s*=\s*["'](\S*)["']''', recipe=recipe)
+    if match is not None:
+        return match.groups()[0]
+    return ""
 
 
 def is_shared(recipe=None):
@@ -58,7 +68,9 @@ def is_shared(recipe=None):
     match = get_value_from_recipe(r'''options.*=([\s\S]*?)(?=}|$)''', recipe=recipe)
     if match is None:
         return False
-    return "shared" in match.groups()[0]
+    if match is not None:
+        return "shared" in match.groups()[0]
+    return False
 
 
 def is_ci_running():
